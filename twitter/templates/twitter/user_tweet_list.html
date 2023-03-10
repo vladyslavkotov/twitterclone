@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    .material-icons {
+      font-family: 'Material Icons';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      display: inline-block;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+      }
+
+      button {
+        border: none;
+        padding: 0;
+        background: none;
+        color:blue;
+        cursor:pointer;
+      }
+  </style>
+
+</head>
+<body>
+<h2>{{ tweets.0.author.username }}</h2>
+<h2>{{ tweets.0.author.pk }}</h2>
+<span>Followers {{tweets.0.author.followers.count}}</span>
+<span>Following {{tweets.0.author.following.count }}</span>
+
+<form action="{% url 'follow' tweets.0.author.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="user_pk" value="{{ tweets.0.author.pk }}">FOLLOW</button>
+</form>
+
+{% for tweet in tweets %}
+<div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
+  href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.date_posted}}
+  <br>
+  <form style="display:inline" action="{% url 'like' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="unstyled-button" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons">favorite</span>
+    </button>
+    <span>{{tweet.likes.count}}</span>
+  </form>
+  <form style="display:inline" action="{% url 'retweet' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">RETWEET</button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+</div>
+<br>
+{% endfor %}
+
+<p><a href="{% url 'password_change' %}">Change password</a></p>
+</body>
+</html>
+

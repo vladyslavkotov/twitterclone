@@ -1,0 +1,16 @@
+{% block content %}
+
+<h2>Conversations</h2>
+<p>{{conversations.count}}</p>
+{% for convo in conversations.all %}
+  {%for message in convo.messages.all %}
+  {%if message.sender == user %}
+  <p style="text-align: right; ">from {{message.sender}} to {{message.receiver}} ---  {{message.text}}</p>
+  {%else%}
+  <p>from {{message.sender}} to {{message.receiver}} ---  {{message.text}}</p>
+  {%endif%}
+  {% endfor %}
+  <p>-------------------</p>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+{% csrf_token %}
+{{form.as_p}}
+
+<input type="submit" value="login">
+<input type="hidden" name="next" value="{{ next }}">
+</form>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+     data-login_uri="/login/"
+     data-auto_prompt="true">
+  </div>
+  <div class="g_id_signin"
+     data-type="icon"
+     data-size="large"
+     data-theme="outline"
+     data-text="sign_in_with"
+     data-shape="rectangular"
+     data-logo_alignment="left">
+  </div>
+
+<p>forgot your password? <a href="{%url 'password_reset' %}">reset your password</a></p>
+
+
+{% endblock %}
+</body>
+</html>

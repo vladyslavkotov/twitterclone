@@ -1,0 +1,24 @@
+{% block content %}
+<h2>Tweets</h2>
+<h5>Profile <a href="{%url 'userfeed' user.username %}">{{user.username}}</a></h5>
+{% for tweet in tweets %}
+<br>
+<div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
+  href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.date_posted}}
+</div>
+<br>
+<form style="display:inline" action="{% url 'like' tweet.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">LIKE</button>
+  <span>{{tweet.likes.count}}</span>
+</form>
+<form style="display:inline" action="{% url 'retweet' tweet.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">RETWEET</button>
+  <span>{{tweet.retweets.count}}</span>
+</form>
+<br>
+{% endfor %}
+<a href="{% url 'logout' %}">Log out</a>
+
+{% endblock %}

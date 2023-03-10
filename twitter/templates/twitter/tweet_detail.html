@@ -1,0 +1,17 @@
+{% block content %}
+<h2>Tweet contents</h2>
+<div>
+  <div>{{ tweet.text}} by {{ tweet.author }} at {{tweet.date_posted}}</div>
+  <br>
+</div>
+<h3>Replies</h3>
+{%for reply in tweet.replies.all %}
+<div><a href="{% url 'detail' reply.author reply.pk %}"> {{ reply.text}} </a>
+  by <a href="{% url 'userfeed' reply.author %}"> {{ reply.author }} </a> at {{reply.date_posted}}
+</div>
+<br>
+{%endfor%}
+
+<a href="{% url 'create' tweet.pk %}">Reply</a>
+
+{% endblock %}
