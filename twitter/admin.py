@@ -26,7 +26,6 @@ class UserCreationForm(BaseUserCreationForm):
 
 class UserChangeForm(BaseUserChangeForm):
 
-
     class Meta:
         model = User
         fields = ("username","email","name","password","bio","userpic")
@@ -50,6 +49,17 @@ class UserAuthenticationForm(AuthenticationForm):
         if self.fields["username"].label is None:
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
+class TweetCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Tweet
+        fields = ("text",)
+
+    text=forms.CharField(max_length=280)
+    # replied_to=forms.ModelChoiceField(queryset=Tweet.objects.all())
+    # author = forms.ModelChoiceField(queryset=User.objects.all())
+
+
 class UserAdmin(BaseUserAdmin):
 #UserAdmin inherits from admin.ModelAdmin and contains a lof of its own shit.
 # extend UserAdmin, not ModelAdmin. Use import as to avoid name clashes
@@ -64,7 +74,7 @@ class UserAdmin(BaseUserAdmin):
         {"fields": ("name", "email", "phone","link", "userpic","background",
                     "date_joined","last_login","bio",)}),
     (_("Follow"),
-     {"fields": ("followers", "following", "conversations"), },),
+     {"fields": ("followers", "following", "conversations","tweets"), },),
                  )
 
     add_fieldsets = (
@@ -93,3 +103,9 @@ admin.site.register(User,UserAdmin)
 admin.site.register(Conversation,ConversationAdmin)
 admin.site.unregister(Group)
 
+#delete without confirmation
+# def delete_selected(modeladmin, request, queryset):
+#     queryset.delete()
+#
+# class SomeAdmin(admin.ModelAdmin):
+#     actions = (delete_selected,)

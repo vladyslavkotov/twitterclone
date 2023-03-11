@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+      button{
+        border: none;
+        padding: 0;
+        background: none;
+        cursor:pointer;
+        }
+
+      .make-active{
+        color:grey;
+        }
+
+      .make-active:hover{
+        color:blue;
+        }
+
+      .make-inactive{
+        color:blue;
+        }
+
+      .make-inactive:hover{
+        color:grey;
+        }
+
+      .blue-button{
+        background-color:rgb(29, 161, 242);
+        text-align: center;
+        font-weight: bold;
+        border-radius:50px;
+        color:white;
+        padding:5px 15px;
+        border:1px;
+        }
+
+  </style>
+</head>
+<body>
+{% block content %}
+<div>
+  <h1>{{ requested_tweet.text}} by {{ requested_tweet.author }} at {{requested_tweet.when}}</h1>
+    <!----------------------------LIKE BUTTON----------------------------------->
+  {%if user in requested_tweet.likes.all %}
+  <form style="display:inline" action="{% url 'dislike' requested_tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ requested_tweet.pk }}">
+      <span class="material-icons make-inactive">favorite</span>
+    </button>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'like' requested_tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ requested_tweet.pk }}">
+      <span class="material-icons make-active">favorite</span>
+    </button>
+  </form>
+  {%endif%}
+  <span>{{requested_tweet.likes.count}}</span>
+  <!--------------------------------RETWEET BUTTON------------------------------->
+  {%if user in requested_tweet.retweets.all %}
+  <form style="display:inline" action="{% url 'unretweet' requested_tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ requested_tweet.pk }}">
+      <span class="material-icons make-inactive">cached</span>
+    </button>
+    <span>{{requested_tweet.retweets.count}}</span>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'retweet' requested_tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ requested_tweet.pk }}">
+      <span class="material-icons make-active">cached</span>
+    </button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+  {%endif%}
+    <!------------------------------------------------------------------------->
+</div>
+
+<h3>Replies</h3>
+{%for reply in requested_tweet.replies.all %}
+<div><a href="{% url 'detail' reply.author reply.pk %}"> {{ reply.text}} </a> by <a href="{% url 'userfeed' reply.author %}"> {{ reply.author }} </a> at {{reply.when}}
+  <br>
+  <!----------------------------LIKE BUTTON----------------------------------->
+  {%if user in reply.likes.all %}
+  <form style="display:inline" action="{% url 'dislike' reply.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ reply.pk }}">
+      <span class="material-icons make-inactive">favorite</span>
+    </button>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'like' reply.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ reply.pk }}">
+      <span class="material-icons make-active">favorite</span>
+    </button>
+  </form>
+  {%endif%}
+  <span>{{reply.likes.count}}</span>
+  <!--------------------------------RETWEET BUTTON------------------------------->
+  {%if user in reply.retweets.all %}
+  <form style="display:inline" action="{% url 'unretweet' reply.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ reply.pk }}">
+      <span class="material-icons make-inactive">cached</span>
+    </button>
+    <span>{{reply.retweets.count}}</span>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'retweet' reply.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ reply.pk }}">
+      <span class="material-icons make-active">cached</span>
+    </button>
+    <span>{{reply.retweets.count}}</span>
+  </form>
+  {%endif%}
+    <!------------------------------------------------------------------------->
+
+</div>
+<br>
+{%endfor%}
+
+<form action="{% url 'reply' requested_tweet.pk %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="">
+    <span class="blue-button">Reply</span>
+    </button>
+</form>
+{% endblock %}
+</body>
+</html>
+

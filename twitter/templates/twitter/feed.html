@@ -26,50 +26,16 @@
         color:grey;
         }
 
-      .follow-button {
-      background-color:black;
-      padding:5px 15px;
-      border-radius:50px;
-      color:white;
-      }
-
-      .follow-button:hover {
-      background-color:black;
-      }
-
-      .unfollow-button {
-      padding:5px 15px;
-      border-radius:50px;
-      background-color:grey;
-      }
-
-      .follow-button:hover {
-        background-color:rgba(0, 0, 0, 0.785);
-      }
-
-      .unfollow-button:hover {
-      background-color:red;
-      color:white;
-      }
-
-      .unfollow-button:hover::after {
-      content: "Unfollow";
-      }
-
-      .unfollow-button::after {
-      content: "Following";
-      }
-
   </style>
 </head>
-{%block body%}
 <body>
+<!-------------------------------------------------------->
+<h2>logged in user {{ user }}</h2>
 {% for tweet in tweets %}
 <div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
   href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.when}}
   <br>
-  {%block buttons%}
-<!----------------------------LIKE BUTTON----------------------------------->
+<!----------------LIKE BUTTON------------------------>
   {%if user in tweet.likes.all %}
   <form style="display:inline" action="{% url 'dislike' tweet.pk %}" method="post">
     {% csrf_token %}
@@ -86,7 +52,7 @@
   </form>
   {%endif%}
   <span>{{tweet.likes.count}}</span>
-  <!--------------------------------RETWEET BUTTON------------------------------->
+  <!-----------------------RETWEET BUTTON------------------------------->
   {%if user in tweet.retweets.all %}
   <form style="display:inline" action="{% url 'unretweet' tweet.pk %}" method="post">
     {% csrf_token %}
@@ -104,13 +70,15 @@
     <span>{{tweet.retweets.count}}</span>
   </form>
   {%endif%}
-  {%endblock%}
-    <!------------------------------------------------------------------------->
+    <!---------------------------------------------------------------->
 </div>
 <br>
 {% endfor %}
 
 <p><a href="{% url 'password_change' %}">Change password</a></p>
+<br>
+<a href="{% url 'logout' %}">Log out</a>
+<br>
 </body>
-{%endblock body%}
 </html>
+

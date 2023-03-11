@@ -1,0 +1,72 @@
+#bluebutton {
+   background-color:rgb(29, 161, 242);
+   color: white;
+   text-align: center;
+   font-weight: bold;
+}
+
+.material-icons {
+   font-size: 20px;
+   vertical-align:text-top;
+}
+
+.navlink {
+   padding: 10px;
+   border-width: 0px;
+   background-color:rgb(240, 240, 240);
+   border-radius: 20px;
+   width: auto;
+   
+}
+.divnavlink{
+   margin-bottom: 20px;
+   margin-left: 20px;
+}
+
+a {
+   text-decoration: none;
+}
+
+a:hover>#bluebutton {
+   background-color: rgb(26,140,216);
+}
+
+a:hover>* {
+   background-color: rgb(200, 200, 200);
+}
+
+.col {
+   float: left;
+}
+
+.left {
+   width: 25%;
+}
+
+.right {
+   width: 25%;
+   height: 300px;
+   border-radius: 8px;
+   background-color: rgb(240, 240, 240);
+}
+
+.mid {
+   width: 50%;
+}
+
+h3 {
+   font-size: 14px;
+   margin-top: 3px;
+   margin-left: 5px;
+}
+
+.content_container {
+   height: 50px;
+   background-color: rgb(240, 240, 240);
+}
+
+p {
+   font-size: 10px;
+   margin: 0px;
+}
+

@@ -65,6 +65,7 @@ class User(AbstractUser):
   following = models.ManyToManyField('self', symmetrical=False, related_name='user_following')
 
   conversations = models.ManyToManyField('Conversation', symmetrical=False, related_name='user_conversations')
+  tweets = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_tweets')
 
   def __str__(self):
     return f'{self.username}'
@@ -123,6 +124,7 @@ class Tweet(models.Model):
     '''DONT call save() on self.replied_to
     add() and create() doesnt require save()'''
     super().save(*args, **kwargs)
+    self.author.tweets.add(self)
     if self.replied_to:
       self.replied_to.replies.add(self)
 
@@ -138,7 +140,7 @@ class TweetList(models.Model):
   return Tweet.objects.filter(replied_to__isnull=True).filter(author__in=users_in_list.all())
   '''
   name = models.CharField(max_length=50)
-  tweets = models.ManyToManyField(Tweet, symmetrical=False, related_name='tweetlist')
+  tweets = models.ManyToManyField(Tweet, symmetrical=False, related_name='list_tweets')
   is_pinned = models.BooleanField(default=False)
 
 class Message(models.Model):

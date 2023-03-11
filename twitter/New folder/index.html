@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+   <link rel="stylesheet" href="style.css">
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+   <title>Document</title>
+
+</head>
+<body>
+   <nav class="col left">
+      <div class="divnavlink" ><a href=""><span class="navlink"><i class="material-icons">home</i><span>Home</span></span></a></div>
+      <div class="divnavlink" ><a href=""><span class="navlink"><i class="material-icons">home</i><span>Explore</span></span></a></div>
+      <div class="divnavlink" ><a href=""><span class="navlink"><i class="material-icons">home</i><span>Notifications</span></span></a></div>
+      <div class="divnavlink" ><a href=""><span class="navlink"><i class="material-icons">home</i><span>Messages</span></span></a></div>
+      <div class="divnavlink" ><a href=""><span class="navlink"><i class="material-icons">home</i><span>Profile</span></span></a></div>
+      <div class="divnavlink" ><a href=""><div class="navlink" id="bluebutton"><span>Tweet</span></div></a></div>
+   </nav>
+
+   <div class="col mid">2nd column
+      <p style="background-color: grey;padding: 10px; border: 1px black solid; width: 50px; cursor:pointer" id="msg">content to be replaced</p>
+   </div>
+
+   <div class="col right">
+      <h3>Trends for you</h3>
+      <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div> 
+      <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div> 
+      <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div> 
+      <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div> 
+   </div>
+
+   <script>
+
+		$(document).ready(function () {
+
+			$('#msg').click(function () {
+
+				$(this).load('msg.html #msg');
+            
+			});
+
+
+		});
+	</script>
+
+
+
+</body>
+</html>

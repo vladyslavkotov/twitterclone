@@ -61,14 +61,35 @@
       }
 
   </style>
+
 </head>
-{%block body%}
 <body>
+<h2>user {{ requested_user }}</h2>
+<h2>logged in user {{ user }}</h2>
+<span>Followers {{requested_user.followers.all }}</span>
+<span>Following {{requested_user.following.all }}</span>
+<br>
+<br>
+{%if user in requested_user.followers.all %}
+<form action="{% url 'unfollow' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="unfollow-button"></span>
+  </button>
+</form>
+{%else%}
+<form action="{% url 'follow' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="follow-button">Follow</span>
+  </button>
+</form>
+{%endif%}
+
 {% for tweet in tweets %}
 <div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
   href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.when}}
   <br>
-  {%block buttons%}
 <!----------------------------LIKE BUTTON----------------------------------->
   {%if user in tweet.likes.all %}
   <form style="display:inline" action="{% url 'dislike' tweet.pk %}" method="post">
@@ -104,7 +125,6 @@
     <span>{{tweet.retweets.count}}</span>
   </form>
   {%endif%}
-  {%endblock%}
     <!------------------------------------------------------------------------->
 </div>
 <br>
@@ -112,5 +132,5 @@
 
 <p><a href="{% url 'password_change' %}">Change password</a></p>
 </body>
-{%endblock body%}
 </html>
+
