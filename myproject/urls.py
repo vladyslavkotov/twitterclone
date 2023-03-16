@@ -34,7 +34,8 @@ urlpatterns = [
     path('<int:pk>/profile/', UserUpdateView.as_view(), name='builtin_profile'),
 
     path('<int:pk>/message/',message,name='message'),
-    path('messages/', conversations,name='conversations'),
+    path('conversations/', conversations, name='conversations'),
+    path('conversations/<int:pk>', one_conversation, name='one_conversation'),
 
     path('register/', UserCreateView.as_view(),name='register'),
     path('login/', UserLoginView.as_view(),name='login'),

@@ -110,10 +110,18 @@ def profile(request,username):
 
 def conversations(request):
   conversations=request.user.conversations.all()
-  # paginator=Paginator(tweets,2)
-  # page_number=request.GET.get('page')
-  # page_obj=paginator.get_page(page_number)
-  return render(request,'twitter/messages.html',{'conversations':conversations})
+  paginator=Paginator(conversations,2)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/conversations.html',{'conversations':page_obj})
+
+def one_conversation(request,pk):
+  messages = Conversation.objects.get(pk=pk).messages.all()
+  form = TweetCreateForm()
+  paginator=Paginator(messages,2)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/messages.html',{'messages':page_obj,'form':form})
 
 def bookmarks(request):
   tweets=request.user.bookmarks.all()

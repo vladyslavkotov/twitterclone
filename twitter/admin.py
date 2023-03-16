@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group
 
 UserModel = get_user_model()
 
+#-------------------------------USER FORMS--------------------------------
 
 class UserCreationForm(BaseUserCreationForm):
   # removed help text, added fields
@@ -49,13 +50,11 @@ class UserAuthenticationForm(AuthenticationForm):
     if self.fields["username"].label is None:
       self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
-
+#-------------------------------MODEL FORMS--------------------------------
 class TweetCreateForm(forms.ModelForm):
   class Meta:
     model = Tweet
     fields = ("text", "pic1")
-
-
 
 
 class MessageCreateForm(forms.ModelForm):
@@ -73,7 +72,7 @@ class ProfileChangeForm(forms.ModelForm):
     model = User
     fields = ("username", "email", "password1", "password2", "name", "bio", "userpic",)
 
-
+#-------------------------ADMIN MODEL SETTINGS---------------------------
 
 class UserAdmin(BaseUserAdmin):
   # UserAdmin inherits from admin.ModelAdmin and contains a lof of its own shit.
@@ -84,7 +83,12 @@ class UserAdmin(BaseUserAdmin):
   list_display = ["pk", "username", "name", "email", "is_verified", "date_joined", "last_login"]
   readonly_fields = ["date_joined", "last_login"]
 
-  fieldsets = ((None, {"fields": ("username", "password", "is_verified")}), (_("Personal info"), {"fields": ("name", "email", "phone", "link", "userpic", "background", "date_joined", "last_login", "bio",)}), (_("Follow"), {"fields": ("followers", "following", "conversations", "tweets","likes","bookmarks"), },),)
+  fieldsets = \
+    ((None, {"fields": ("username", "password", "is_verified")}),
+
+    (_("Personal info"), {"fields": ("name", "email", "phone", "link", "userpic", "background", "date_joined", "last_login", "bio",)}),
+
+    (_("Follow"), {"fields": ("followers", "following", "conversations", "tweets","likes","bookmarks"), },),)
 
   add_fieldsets = ((None, {"classes": ("wide",), "fields": ("username", "email", "password1", "password2"), },),)
 
@@ -93,7 +97,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 class TweetAdmin(admin.ModelAdmin):
-  list_display = ["pk", "text", "author", "views"]  # fields=["text","author","pic1"]
+  list_display = ["pk", "text", "author", "views"]
 
 
 class ConversationAdmin(admin.ModelAdmin):
@@ -103,7 +107,7 @@ class ConversationAdmin(admin.ModelAdmin):
 
 class MessageAdmin(admin.ModelAdmin):
   list_display = ["pk", "text", "when"]
-  fields = ["text"]
+  fields = ["sender","receiver","text"]
 
 
 admin.site.register(Tweet, TweetAdmin)
