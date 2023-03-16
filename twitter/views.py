@@ -1,81 +1,129 @@
-from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
-from django.views.generic import ListView,DetailView,CreateView
+from django.views.generic import ListView,CreateView,UpdateView
 from django.urls import reverse
-from .admin import UserCreationForm, UserAuthenticationForm
+from .admin import *
 from django.contrib.auth.views import *
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
-from twitter.admin import TweetCreateForm
+from django.contrib import messages as django_messages
+from django.core.paginator import Paginator
+import re
 
 from .models import *
 
-#tweet create form, author=current user
-def feed(request):
-  current_user = User.objects.get(username=request.user)
-  tweets=Tweet.objects.filter(replied_to__isnull=True).filter(author__in=current_user.following.all())
-  #we can lump up user.tweets by al users we are following to avoid filtering all()
-  return render(request,'twitter/feed.html',{'tweets':tweets})
+def clean_text(text):
+  return re.sub(r'(\r\n){3,}',"\n\n", text)
 
-#no form. requires pagination
+@login_required
+def feed(request):
+  current_user=get_object_or_404(User,username=request.user)
+  # current_user = User.objects.get(username=request.user)
+  tweets=Tweet.objects.filter(replied_to__isnull=True).filter(author__in=current_user.following.all())
+  paginator=Paginator(tweets,2)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  form = TweetCreateForm()
+  #we can lump up user.tweets by al users we are following to avoid filtering all()
+  return render(request,'twitter/feed.html',{'tweets':page_obj, 'form':form})
+
+def base(request):
+  return render(request,'twitter/base.html')
+
 def userfeed(request,author):
+  form=MessageCreateForm()
   requested_user = User.objects.get(username=author)
   tweets=requested_user.tweets.all().filter(replied_to__isnull=True)
-  #we can lump up user.tweets by al users we are following to avoid filtering all()
-  return render(request,'twitter/userfeed.html',{'requested_user':requested_user,'tweets':tweets})
+  paginator=Paginator(tweets,2)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/userfeed.html',{'requested_user':requested_user,'tweets':page_obj,'form':form})
 
-#requires pagination
 def detail(request,author,pk):
   requested_tweet = Tweet.objects.get(pk=pk)
+  requested_tweet.views+=1
+  requested_tweet.save()
   form = TweetCreateForm()
-  return render(request,'twitter/detail.html',{'requested_tweet':requested_tweet,'form':form})
+  replies=requested_tweet.replies.all()
+  paginator=Paginator(replies,1)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/detail.html',{'tweet':requested_tweet,'form':form,'replies':page_obj})
 
-#when we actually hit Reply. How we display form etc is outside the scope
+
+#----------------------------------REDIRECTS----------------------------
 def reply(request,pk):
   replied_to_tweet=Tweet.objects.get(pk=pk)
   if request.method == 'POST':
-      Tweet.objects.create(author=request.user,text=request.POST.get('text'),replied_to=replied_to_tweet)
-      return HttpResponseRedirect(request.META['HTTP_REFERER'])
+    cleaned_text = clean_text(request.POST.get('text'))
+    Tweet.objects.create(author=request.user,text=cleaned_text,replied_to=replied_to_tweet)
+    django_messages.success(request,f'Your reply has been sent')
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
   else:
     form = TweetCreateForm()
     return render(request, 'twitter/detail.html', {'requested_tweet': replied_to_tweet, 'form': form})
 
-# class TweetCreateView(LoginRequiredMixin, CreateView):
-#   model = Tweet
-#   context_object_name = "tweet"
-#   fields = ["text", "pic1"]
-#
-#   def get_success_url(self):
-#     return reverse('feed')
-#
-#   def form_valid(self, form):
-#     form.instance.author = self.request.user
-#     return super().form_valid(form)
+def message(request,pk):
+  receiver = User.objects.get(pk=pk)
+  if request.method == 'POST':
+    cleaned_text=clean_text(request.POST.get('text'))
+    Message.objects.create(sender=request.user,receiver=receiver,text=cleaned_text)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+  else:
+    form = MessageCreateForm()
+    tweets = receiver.tweets.all().filter(replied_to__isnull=True)
+    return render(request, 'twitter/userfeed.html', {'requested_user': receiver, 'tweets': tweets, 'form': form})
 
-class MessageCreateView(LoginRequiredMixin, CreateView):
-  model = Message
-  context_object_name = "message"
-  fields = ["sender", "receiver","text"]
+def tweet(request):
+  if request.method == 'POST':
+    cleaned_text = clean_text(request.POST.get('text'))
+    Tweet.objects.create(author=request.user,text=cleaned_text)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+  else:
+    current_user = User.objects.get(username=request.user)
+    tweets = Tweet.objects.filter(replied_to__isnull=True).filter(author__in=current_user.following.all())
+    form = TweetCreateForm()
+    return render(request, 'twitter/feed.html', {'tweets': tweets, 'form': form})
 
-  def get_success_url(self):
-    return reverse('feed')
+def update_profile(request,pk):
+  current_user = User.objects.get(pk=pk)
+  if request.method == 'POST':
+    form=ProfileChangeForm(request.POST,instance=request.user)
+    if form.is_valid():
+      form.save()
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+  else:
+    form = MessageCreateForm(instance=request.user)
+    return render(request, 'twitter/profile.html', {'current_user': current_user, 'form': form})
 
-  def form_valid(self, form):
-    form.instance.author = self.request.user
-    return super().form_valid(form)
+@login_required
+def profile(request,username):
+  current_user = User.objects.get(username=username)
+  tweets=current_user.tweets.all().filter(replied_to__isnull=True)
+  likes=current_user.likes.all()
+  paginator_tweets=Paginator(tweets,2)
+  paginator_likes = Paginator(likes, 2)
 
-class ConversationListView(ListView):
-  context_object_name = "conversations"
-  model = Conversation
+  page_number=request.GET.get('page')
 
-  # #tweets by only currently logged in user
-  # def get_queryset(self):
-  #     return Tweet.objects.filter(author=self.request.user)
+  page_obj_tweets=paginator_tweets.get_page(page_number)
+  page_obj_likes=paginator_likes.get_page(page_number)
+  form=ProfileChangeForm(instance=request.user) #pre fill data
+  return render(request,'twitter/profile.html',{'current_user':current_user,'form':form,'tweets':page_obj_tweets,'likes':page_obj_likes})
 
-  def get_queryset(self):
-    # get current user
-    return User.objects.get(username=self.request.user).conversations.all()
+def conversations(request):
+  conversations=request.user.conversations.all()
+  # paginator=Paginator(tweets,2)
+  # page_number=request.GET.get('page')
+  # page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/messages.html',{'conversations':conversations})
 
+def bookmarks(request):
+  tweets=request.user.bookmarks.all()
+  paginator=Paginator(tweets,2)
+  page_number=request.GET.get('page')
+  page_obj=paginator.get_page(page_number)
+  return render(request,'twitter/bookmarks.html',{'tweets':page_obj})
 
-#user
+#-------------------------------------USER--------------------------------
+
 class UserLoginView(LoginView):
   form_class = UserAuthenticationForm
   template_name = "twitter/login.html"
@@ -91,7 +139,16 @@ class UserCreateView(CreateView):
   def get_success_url(self):
     return reverse('feed')
 
+class UserUpdateView(UpdateView):
+  model = User
+  form_class = UserChangeForm
 
+  def get_success_url(self):
+    return reverse('feed')
+
+
+
+#---------------------------------TWEET ACTIONS-----------------------------
 def follow(request, pk):
   user = User.objects.get(pk=request.POST.get('requested_user_pk'))
   request.user.following.add(user)
@@ -106,6 +163,7 @@ def unfollow(request, pk):
   # return render(request,'twitter/follow.html',{'request':request,'requested_user':user,})
   return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+
 def like(request, pk):
   # even tho pk arg is not used, it IS used - we pass it from template
   tweet = Tweet.objects.get(pk=request.POST.get('tweet_pk'))
@@ -118,23 +176,63 @@ def dislike(request, pk):
   tweet.likes.remove(request.user)
   return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
-#probably will redo
+
+#confirmation pop up
+def delete_tweet(request,pk):
+  tweet = Tweet.objects.get(pk=request.POST.get('tweet_pk'))
+  tweet.delete()
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+def delete_message(request,pk):
+  message = Message.objects.get(pk=request.POST.get('tweet_pk'))
+  message.delete()
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+def delete_conversation(request,pk):
+  conversation = Conversation.objects.get(pk=request.POST.get('tweet_pk'))
+  conversation.delete()
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+def block(request, pk):
+  user = User.objects.get(pk=request.POST.get('user_pk'))
+  request.user.blocked.add(user)
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+def unblock(request, pk):
+  user = User.objects.get(pk=request.POST.get('user_pk'))
+  request.user.blocked.remove(user)
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+def mute(request, pk):
+  user = User.objects.get(pk=request.POST.get('user_pk'))
+  request.user.muted.add(user)
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+def unmute(request, pk):
+  user = User.objects.get(pk=request.POST.get('user_pk'))
+  request.user.muted.remove(user)
+  return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
 def bookmark(request, pk):
   tweet = Tweet.objects.get(pk=request.POST.get('tweet_pk'))
-  tweet.bookmarks.add(request.user)
+  request.user.bookmarks.add(tweet)
   return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 def unbookmark(request, pk):
   tweet = Tweet.objects.get(pk=request.POST.get('tweet_pk'))
-  tweet.bookmarks.remove(request.user)
+  request.user.bookmarks.remove(tweet)
   return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
-#possibly unfinished
+
 def retweet(request, pk):
   #we may be able to optimize it by calling get() on request.user.tweets instead of filtering through
   #ALL the tweets. but both filter() and get() are greedy, because get() errors when found >1 args
   #that means it actually checks everything which we are trying to avoid
   #find out if sql uses subscription to get the obj by pk, bc linear search is not possible here
+  #views get copied automatically no problem
   tweet = Tweet.objects.get(pk=request.POST.get('tweet_pk'))
   tweet.retweets.add(request.user)
   new_tweet = Tweet.objects.create(author=request.user, replied_to=None, text=tweet.text, views=tweet.views, retweeted_from=tweet)
@@ -142,8 +240,6 @@ def retweet(request, pk):
   new_tweet.likes.add(*tweet.likes.all())
   new_tweet.retweets.add(*tweet.retweets.all())
   new_tweet.replies.add(*tweet.replies.all())
-  new_tweet.bookmarks.add(*tweet.bookmarks.all())
-  #views?
   return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 def unretweet(request, pk):

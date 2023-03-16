@@ -8,12 +8,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('feed/', feed, name='feed'),
 
+    path('', base, name='base'),
+
     path('<author>/tweets', userfeed, name='userfeed'),
-    # path('<author>/<int:pk>/', TweetDetailView.as_view(),name='detail'),
     path('<author>/<int:pk>/', detail, name='detail'),
 
-    path('register/', UserCreateView.as_view(),name='register'),
     path('<int:pk>/reply/', reply, name='reply'),
+    path('tweet/', tweet, name='tweet'),
     #----------------TWEET BUTTONS --------------------
     path('<int:pk>/like/',like, name='like'),
     path('<int:pk>/dislike/',dislike, name='dislike'),
@@ -26,12 +27,17 @@ urlpatterns = [
 
     path('<int:pk>/bookmark/', bookmark, name='bookmark'),
     path('<int:pk>/unbookmark/', unbookmark, name='unbookmark'),
+    path('bookmarks/', bookmarks, name='bookmarks'),
 
-    # path('profile/', UserDetailView.as_view(),name='profile'),
+    path('<username>/profile/', profile, name='profile'),
+    path('<pk>/update_profile/', update_profile, name='update_profile'),
+    path('<int:pk>/profile/', UserUpdateView.as_view(), name='builtin_profile'),
+
+    path('<int:pk>/message/',message,name='message'),
+    path('messages/', conversations,name='conversations'),
+
+    path('register/', UserCreateView.as_view(),name='register'),
     path('login/', UserLoginView.as_view(),name='login'),
-    path('new_message/', MessageCreateView.as_view(),name='new_message'),
-    # path('messages/', MessageCreateView.as_view(),name='messages'),
-    path('conversations/', ConversationListView.as_view(),name='conversations'),
     path('logout/', UserLogoutView.as_view(),name='logout'),
     #----------------PASSWORD CHANGE/RESET--------------------
     path("password_change/", PasswordChangeView.as_view(), name="password_change"),

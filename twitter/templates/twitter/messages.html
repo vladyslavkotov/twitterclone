@@ -2,7 +2,7 @@
 
 <h2>Conversations</h2>
 <p>{{conversations.count}}</p>
-{% for convo in conversations.all %}
+{% for convo in conversations %}
   {%for message in convo.messages.all %}
   {%if message.sender == user %}
   <p style="text-align: right; ">from {{message.sender}} to {{message.receiver}} ---  {{message.text}}</p>

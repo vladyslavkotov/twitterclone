@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+      button {
+        border: none;
+        padding: 0;
+        background: none;
+        cursor:pointer;
+      }
+
+      .make-active{
+        color:grey;
+        }
+      .make-active:hover{
+        color:blue;
+        }
+
+      .make-inactive{
+        color:blue;
+        }
+      .make-inactive:hover{
+        color:grey;
+        }
+
+      .blue-button{
+        background-color:rgb(29, 161, 242);
+        text-align: center;
+        font-weight: bold;
+        border-radius:50px;
+        color:white;
+        padding:5px 15px;
+        border:1px;
+        }
+
+        span.form-button {
+        border: none;
+        padding: 0;
+        background: none;
+        cursor:pointer;
+      }
+
+  </style>
+</head>
+<h3>Profile</h3>
+<body>
+<div>{{current_user}}</div>
+<form action="{% url 'update_profile' current_user.pk %}" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" value="">
+    <span>Send</span>
+  </button>
+</form>
+<br><br>
+<!------------------------------PAGINATED TWEETS------------------------------->
+<h4>Tweets</h4>
+{% for tweet in tweets %}
+<div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
+  href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.when}}
+  <br>
+<!----------------LIKE BUTTON------------------------>
+  {%if user in tweet.likes.all %}
+  <form style="display:inline" action="{% url 'dislike' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-inactive">favorite</span>
+    </button>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'like' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-active">favorite</span>
+    </button>
+  </form>
+  {%endif%}
+  <span>{{tweet.likes.count}}</span>
+  <!-----------------------RETWEET BUTTON------------------------------->
+  {%if user in tweet.retweets.all %}
+  <form style="display:inline" action="{% url 'unretweet' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-inactive">cached</span>
+    </button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'retweet' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-active">cached</span>
+    </button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+  {%endif%}
+    <!---------------------------------------------------------------->
+      <span>views {{tweet.views}}</span>
+</div>
+<br>
+{% endfor %}
+<!---------------------------------PAGINATION----------------------------------->
+{% if tweets.has_previous %}
+<a href="?page={{ tweets.previous_page_number }}">previous</a>
+{%endif%}
+{% if tweets.has_next %}
+<a href="?page={{ tweets.next_page_number }}">next</a>
+{%endif%}
+<br><br>
+<!----------------------------PAGINATED LIKED TWEETS----------------------------->
+<h4>Liked Tweets</h4>
+{% for tweet in likes %}
+<div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
+  href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.when}}
+  <br>
+<!----------------LIKE BUTTON------------------------>
+  {%if user in tweet.likes.all %}
+  <form style="display:inline" action="{% url 'dislike' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-inactive">favorite</span>
+    </button>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'like' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button class="like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-active">favorite</span>
+    </button>
+  </form>
+  {%endif%}
+  <span>{{tweet.likes.count}}</span>
+  <!-----------------------RETWEET BUTTON------------------------------->
+  {%if user in tweet.retweets.all %}
+  <form style="display:inline" action="{% url 'unretweet' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-inactive">cached</span>
+    </button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+  {%else%}
+    <form style="display:inline" action="{% url 'retweet' tweet.pk %}" method="post">
+    {% csrf_token %}
+    <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+      <span class="material-icons make-active">cached</span>
+    </button>
+    <span>{{tweet.retweets.count}}</span>
+  </form>
+  {%endif%}
+    <!---------------------------------------------------------------->
+      <span>views {{tweet.views}}</span>
+</div>
+<br>
+{% endfor %}
+<!---------------------------------PAGINATION----------------------------------->
+{% if likes.has_previous %}
+<a href="?page={{ likes.previous_page_number }}">previous</a>
+{%endif%}
+{% if likes.has_next %}
+<a href="?page={{ likes.next_page_number }}">next</a>
+{%endif%}
+
+<br>
+</body>
+</html>

@@ -1,16 +1,7 @@
 {%extends 'twitter/base.html' %}
 {%block tweets%}
-<!------------------------------SEND TWEET FORM---------------------------------->
-<form action="{% url 'tweet' %}" method="post">
-    {% csrf_token %}
-    <span>{{ form.text }}</span>
-  <br>
-    <span style="color:blue; padding:10px;">{{ form.pic1 }}</span>
-    <button type="submit" value="">
-    <span class="blue-button">Tweet</span>
-    </button>
-</form>
-<br> <br>
+<h3>Bookmarks</h3>
+<h5>{{user}}</h5>
 <!------------------------------PAGINATED TWEETS------------------------------->
 {% for tweet in tweets %}
 <div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a

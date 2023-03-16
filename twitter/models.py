@@ -17,7 +17,7 @@ class UsernameValidator(RegexValidator):
 
 @deconstructible
 class EmailValidator(RegexValidator):
-  regex = r'(?=\w{2,}@[a-zA-Z]{2,}\.[a-zA-Z]{2,})(?=^[a-zA-Z])'
+  regex = r'(?=\w{2,}@[a-zA-Z]{2,}\.[a-z]{2,})(?=^[a-z])'
   message = _("Enter a valid email")
   flags = 0
 
@@ -67,6 +67,9 @@ class User(AbstractUser):
   conversations = models.ManyToManyField('Conversation', symmetrical=False, related_name='user_conversations')
   tweets = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_tweets')
 
+  likes = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_likes')
+  bookmarks = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_bookmarks')
+
   def __str__(self):
     return f'{self.username}'
 
@@ -100,7 +103,7 @@ class UserManager(BaseUserManager):
 # tweets
 class Tweet(models.Model):
   author = models.ForeignKey(User, on_delete=models.CASCADE)
-  text = models.CharField(max_length=280)
+  text = models.TextField(max_length=280)
   when = models.DateTimeField(auto_now_add=True)  # first created. can edit tweets with twitter blue only
   replied_to = models.ForeignKey('self', on_delete=models.CASCADE, null=True, related_name='replied')
   retweeted_from = models.ForeignKey('self', on_delete=models.CASCADE, null=True, related_name='retweeted')
@@ -113,7 +116,6 @@ class Tweet(models.Model):
   likes = models.ManyToManyField(User, symmetrical=False, related_name='tweet_likes')
   retweets = models.ManyToManyField(User, symmetrical=False, related_name='tweet_retweets')
   replies = models.ManyToManyField('self', symmetrical=False, related_name='tweet_replies')
-  bookmarks = models.ManyToManyField(User, symmetrical=False, related_name='tweet_bookmarks')
 
   views = models.IntegerField(default=0)
 
@@ -147,6 +149,9 @@ class Message(models.Model):
   # cant be null. probably better to set to 'deleted account' on delete
   sender = models.ForeignKey(User, on_delete=models.CASCADE,related_name='message_sender')
   receiver = models.ForeignKey(User, on_delete=models.CASCADE,related_name='message_receiver')
+  #forwarded from deleted message like in telegram.
+  #apparently you cannot forward messages in twitter at al, so
+  forwarded_from=models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='forwarded')
   text = models.TextField()
   when = models.DateTimeField(auto_now_add=True)
 
@@ -165,7 +170,7 @@ class Message(models.Model):
       existing_convo = self.sender.conversations.all().get(participants__in=[self.receiver])
       existing_convo.messages.add(self)
     except ObjectDoesNotExist:
-      next_available_pk = Conversation.objects.last().pk + 1
+      next_available_pk = (Conversation.objects.last().pk + 1)
       new_convo=Conversation.objects.create(pk=next_available_pk)
       new_convo.participants.add(self.sender,self.receiver)
       self.sender.conversations.add(new_convo)
@@ -174,6 +179,7 @@ class Message(models.Model):
 
 class Conversation(models.Model):
   # cant be null. probably better to set to 'deleted account' on delete
+  #possibly can be notifications on for user and reflect on convo with him
   is_pinned = models.BooleanField(default=False)
   messages = models.ManyToManyField(Message, symmetrical=False, related_name='convo_messages')
   participants = models.ManyToManyField(User, symmetrical=False, related_name='convo_participants')
@@ -185,4 +191,8 @@ class Conversation(models.Model):
     if self.participants.count()>2:
       raise ValueError
     super().save(*args, **kwargs)
+
+  def get_participants(self):
+    '''displays participants in admin as 1 string'''
+    return " ".join([str(x) for x in self.participants.all().only("username")])
 

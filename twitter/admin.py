@@ -11,99 +11,108 @@ from django.contrib.auth.models import Group
 
 UserModel = get_user_model()
 
+
 class UserCreationForm(BaseUserCreationForm):
-    #removed help text, added fields
-    password1 = forms.CharField(label=_("Password"),
-            strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), )
+  # removed help text, added fields
+  password1 = forms.CharField(label=_("Password"), strip=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), )
 
-    password2 = forms.CharField(label=_("Password confirmation"),
-            widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), strip=False, )
+  password2 = forms.CharField(label=_("Password confirmation"), widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), strip=False, )
 
-    class Meta:
-        model = User
-        fields = ("username","email","name","password1","password2","bio","userpic")
-        field_classes = {"username": UsernameField}
+  class Meta:
+    model = User
+    fields = ("username", "email", "name", "password1", "password2", "bio", "userpic")
+    field_classes = {"username": UsernameField}
+
 
 class UserChangeForm(BaseUserChangeForm):
+  class Meta:
+    model = User
+    fields = ("username", "email", "name", "password", "bio", "userpic")
 
-    class Meta:
-        model = User
-        fields = ("username","email","name","password","bio","userpic")
 
 class UserAuthenticationForm(AuthenticationForm):
 
-    def __init__(self, request=None, *args, **kwargs):
-        """
-        The 'request' parameter is set for custom auth use by subclasses.
-        The form data comes in via the standard 'data' kwarg.
-        """
-        self.request = request
-        self.user_cache = None
-        super().__init__(*args, **kwargs)
+  def __init__(self, request=None, *args, **kwargs):
+    """
+    The 'request' parameter is set for custom auth use by subclasses.
+    The form data comes in via the standard 'data' kwarg.
+    """
+    self.request = request
+    self.user_cache = None
+    super().__init__(*args, **kwargs)
 
-        # Set the max length and label for the "username" field.
-        self.username_field = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
-        username_max_length = 100
-        self.fields["username"].max_length = username_max_length
-        self.fields["username"].widget.attrs["maxlength"] = username_max_length
-        if self.fields["username"].label is None:
-            self.fields["username"].label = capfirst(self.username_field.verbose_name)
+    # Set the max length and label for the "username" field.
+    self.username_field = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
+    username_max_length = 100
+    self.fields["username"].max_length = username_max_length
+    self.fields["username"].widget.attrs["maxlength"] = username_max_length
+    if self.fields["username"].label is None:
+      self.fields["username"].label = capfirst(self.username_field.verbose_name)
+
 
 class TweetCreateForm(forms.ModelForm):
+  class Meta:
+    model = Tweet
+    fields = ("text", "pic1")
 
-    class Meta:
-        model = Tweet
-        fields = ("text",)
 
-    text=forms.CharField(max_length=280)
-    # replied_to=forms.ModelChoiceField(queryset=Tweet.objects.all())
-    # author = forms.ModelChoiceField(queryset=User.objects.all())
+
+
+class MessageCreateForm(forms.ModelForm):
+  class Meta:
+    model = Message
+    fields = ("text",)
+
+
+class ProfileChangeForm(forms.ModelForm):
+  password1 = forms.CharField(label=_("Password"), strip=False, required=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), )
+
+  password2 = forms.CharField(label=_("Password confirmation"), required=False, widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}), strip=False, )
+
+  class Meta:
+    model = User
+    fields = ("username", "email", "password1", "password2", "name", "bio", "userpic",)
+
 
 
 class UserAdmin(BaseUserAdmin):
-#UserAdmin inherits from admin.ModelAdmin and contains a lof of its own shit.
-# extend UserAdmin, not ModelAdmin. Use import as to avoid name clashes
-    form = UserChangeForm
-    add_form = UserCreationForm
+  # UserAdmin inherits from admin.ModelAdmin and contains a lof of its own shit.
+  # extend UserAdmin, not ModelAdmin. Use import as to avoid name clashes
+  form = UserChangeForm
+  add_form = UserCreationForm
 
-    list_display = ["pk","username", "name", "email","is_verified","date_joined","last_login"]
-    readonly_fields = ["date_joined","last_login"]
+  list_display = ["pk", "username", "name", "email", "is_verified", "date_joined", "last_login"]
+  readonly_fields = ["date_joined", "last_login"]
 
-    fieldsets = ((None, {"fields": ("username", "password", "is_verified")}),
-    (_("Personal info"),
-        {"fields": ("name", "email", "phone","link", "userpic","background",
-                    "date_joined","last_login","bio",)}),
-    (_("Follow"),
-     {"fields": ("followers", "following", "conversations","tweets"), },),
-                 )
+  fieldsets = ((None, {"fields": ("username", "password", "is_verified")}), (_("Personal info"), {"fields": ("name", "email", "phone", "link", "userpic", "background", "date_joined", "last_login", "bio",)}), (_("Follow"), {"fields": ("followers", "following", "conversations", "tweets","likes","bookmarks"), },),)
 
-    add_fieldsets = (
-        (
-            None,
-            {
-                "classes": ("wide",),
-                "fields": ("username", "email", "password1", "password2"),
-            },
-        ),
-    )
+  add_fieldsets = ((None, {"classes": ("wide",), "fields": ("username", "email", "password1", "password2"), },),)
 
-    #later
-    list_filter = ()
+  # later
+  list_filter = ()
+
 
 class TweetAdmin(admin.ModelAdmin):
-    list_display = ["pk","text","author","when"]
-    # fields=["text","author","pic1"]
+  list_display = ["pk", "text", "author", "views"]  # fields=["text","author","pic1"]
+
 
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ["pk"]
-    fields=["participants","messages"]
+  list_display = ["pk", "get_participants"]
+  fields = ["participants", "messages"]
 
-admin.site.register(Tweet,TweetAdmin)
-admin.site.register(User,UserAdmin)
-admin.site.register(Conversation,ConversationAdmin)
+
+class MessageAdmin(admin.ModelAdmin):
+  list_display = ["pk", "text", "when"]
+  fields = ["text"]
+
+
+admin.site.register(Tweet, TweetAdmin)
+admin.site.register(User, UserAdmin)
+admin.site.register(Conversation, ConversationAdmin)
+admin.site.register(Message, MessageAdmin)
 admin.site.unregister(Group)
 
-#delete without confirmation
+# delete without confirmation
 # def delete_selected(modeladmin, request, queryset):
 #     queryset.delete()
 #
