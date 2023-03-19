@@ -1,0 +1,14 @@
+{% extends 'twitter/base.html' %}
+
+{% block tweets %}
+<section class="col mid">
+<h3>Explore</h3>
+  <br>
+<h4>Trends for you</h4>
+{% include 'twitter/trends.html' %}
+  <br>
+{% include 'twitter/tweets.html' %}
+</section>
+{% endblock %}
+
+

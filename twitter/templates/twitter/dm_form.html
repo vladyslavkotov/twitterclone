@@ -1,0 +1,7 @@
+<form action="{% url 'message' requested_user.pk %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="">
+    <span class="blue-button">Send</span>
+    </button>
+</form>

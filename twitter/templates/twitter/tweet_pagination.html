@@ -1,0 +1,6 @@
+{% if tweets.has_previous %}
+<a href="?page={{ tweets.previous_page_number }}">previous</a>
+{% endif %}
+{% if tweets.has_next %}
+<a href="?page={{ tweets.next_page_number }}">next</a>
+{% endif %}

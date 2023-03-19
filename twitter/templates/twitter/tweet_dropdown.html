@@ -1,0 +1,16 @@
+<!-----------------------BOOKMARK BUTTON------------------------------->
+{%if tweet in user.bookmarks.all %}
+<form style="display:inline" action="{% url 'unbookmark' tweet.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+    <span class="material-icons make-inactive">bookmark_border</span>
+  </button>
+</form>
+{%else%}
+  <form style="display:inline" action="{% url 'bookmark' tweet.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="tweet_pk" value="{{ tweet.pk }}">
+    <span class="material-icons make-active">bookmark_border</span>
+  </button>
+</form>
+{%endif%}

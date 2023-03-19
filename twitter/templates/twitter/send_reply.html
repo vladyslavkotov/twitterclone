@@ -1,0 +1,7 @@
+<form action="{% url 'reply' tweet.pk %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="">
+    <span class="blue-button">Reply</span>
+    </button>
+</form>

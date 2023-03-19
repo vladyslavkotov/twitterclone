@@ -1,0 +1,16 @@
+<!---------------------------FOLLOW/UNFOLLOW BUTTON------------------------------------->
+{%if user in requested_user.followers.all %}
+<form action="{% url 'unfollow' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="unfollow-button"></span>
+  </button>
+</form>
+{%else%}
+<form action="{% url 'follow' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="follow-button">Follow</span>
+  </button>
+</form>
+{%endif%}

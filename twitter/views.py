@@ -1,4 +1,4 @@
-from django.views.generic import ListView,CreateView,UpdateView
+from django.views.generic import CreateView,UpdateView
 from django.urls import reverse
 from .admin import *
 from django.contrib.auth.views import *
@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, re
 from django.contrib import messages as django_messages
 from django.core.paginator import Paginator
 import re
+from django.utils import timezone
 
 from .models import *
 
@@ -17,7 +18,7 @@ def feed(request):
   current_user=get_object_or_404(User,username=request.user)
   # current_user = User.objects.get(username=request.user)
   tweets=Tweet.objects.filter(replied_to__isnull=True).filter(author__in=current_user.following.all())
-  paginator=Paginator(tweets,2)
+  paginator=Paginator(tweets,4)
   page_number=request.GET.get('page')
   page_obj=paginator.get_page(page_number)
   form = TweetCreateForm()
@@ -25,11 +26,13 @@ def feed(request):
   return render(request,'twitter/feed.html',{'tweets':page_obj, 'form':form})
 
 def base(request):
-  return render(request,'twitter/base.html')
+  # trends=Tweet.objects.filter(when__gt=timezone.now()-timezone.timedelta(days=1))
+  trends=Tweet.objects.all().order_by('-when')[:5]
+  return render(request,'twitter/base.html',{'trends':trends})
 
-def userfeed(request,author):
+def userfeed(request,pk):
   form=MessageCreateForm()
-  requested_user = User.objects.get(username=author)
+  requested_user = User.objects.get(pk=pk)
   tweets=requested_user.tweets.all().filter(replied_to__isnull=True)
   paginator=Paginator(tweets,2)
   page_number=request.GET.get('page')
@@ -45,8 +48,11 @@ def detail(request,author,pk):
   paginator=Paginator(replies,1)
   page_number=request.GET.get('page')
   page_obj=paginator.get_page(page_number)
-  return render(request,'twitter/detail.html',{'tweet':requested_tweet,'form':form,'replies':page_obj})
+  return render(request,'twitter/detail.html',{'tweet':requested_tweet,'form':form,'tweets':page_obj})
 
+def search(request,str):
+  tweets=Tweet.objects.filter(text__icontains=str)
+  return render(request, 'twitter/explore.html', {'tweets': tweets})
 
 #----------------------------------REDIRECTS----------------------------
 def reply(request,pk):
@@ -93,9 +99,10 @@ def update_profile(request,pk):
     form = MessageCreateForm(instance=request.user)
     return render(request, 'twitter/profile.html', {'current_user': current_user, 'form': form})
 
+#profile and my userfeed are 2 different things. and twitter doesnt do 1 separate page for profile update
 @login_required
-def profile(request,username):
-  current_user = User.objects.get(username=username)
+def profile(request,pk):
+  current_user = User.objects.get(pk=pk)
   tweets=current_user.tweets.all().filter(replied_to__isnull=True)
   likes=current_user.likes.all()
   paginator_tweets=Paginator(tweets,2)
@@ -129,6 +136,12 @@ def bookmarks(request):
   page_number=request.GET.get('page')
   page_obj=paginator.get_page(page_number)
   return render(request,'twitter/bookmarks.html',{'tweets':page_obj})
+
+#pending next migration
+def lists(request):
+  pass
+  lists=request.user.lists.all()
+  return render(request,'twitter/bookmarks.html',{'lists':lists})
 
 #-------------------------------------USER--------------------------------
 

@@ -10,20 +10,20 @@ from django.contrib.auth.hashers import make_password
 
 @deconstructible
 class UsernameValidator(RegexValidator):
-  regex = r'(?=\w{4,})(?!^\d)'
+  regex = r'(?=[0-9a-z_]{4,})(?=^[a-z])'
   message = _("Enter a valid username. This value may contain only letters, "
               "numbers, and underscores")
   flags = 0
 
 @deconstructible
 class EmailValidator(RegexValidator):
-  regex = r'(?=\w{2,}@[a-zA-Z]{2,}\.[a-z]{2,})(?=^[a-z])'
+  regex = r'(?=\w{2,}@[a-z]{2,}\.[a-z]{2,})(?=^[a-z])'
   message = _("Enter a valid email")
   flags = 0
 
 @deconstructible
 class PhoneValidator(RegexValidator):
-  regex = r'^\d*$'
+  regex = r'^\d+$'
   message = _("Enter a valid phone number with country code without +")
   flags = 0
 
@@ -69,6 +69,11 @@ class User(AbstractUser):
 
   likes = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_likes')
   bookmarks = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_bookmarks')
+
+  #lists = models.ManyToManyField('TweetList', symmetrical=False, related_name='user_lists')
+  #also you can pin 1 of your tweets at the top of your profile
+  #send tweets as dm
+
 
   def __str__(self):
     return f'{self.username}'

@@ -7,10 +7,10 @@ from twitter.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('feed/', feed, name='feed'),
-
+    path('search/<str>', search, name='search'),
     path('', base, name='base'),
 
-    path('<author>/tweets', userfeed, name='userfeed'),
+    path('<int:pk>/tweets', userfeed, name='userfeed'),
     path('<author>/<int:pk>/', detail, name='detail'),
 
     path('<int:pk>/reply/', reply, name='reply'),
@@ -29,12 +29,13 @@ urlpatterns = [
     path('<int:pk>/unbookmark/', unbookmark, name='unbookmark'),
     path('bookmarks/', bookmarks, name='bookmarks'),
 
-    path('<username>/profile/', profile, name='profile'),
-    path('<pk>/update_profile/', update_profile, name='update_profile'),
+    path('<int:pk>/profile/', profile, name='profile'),
+    path('<int:pk>/update_profile/', update_profile, name='update_profile'),
     path('<int:pk>/profile/', UserUpdateView.as_view(), name='builtin_profile'),
 
     path('<int:pk>/message/',message,name='message'),
     path('conversations/', conversations, name='conversations'),
+    path('lists/', lists, name='lists'),
     path('conversations/<int:pk>', one_conversation, name='one_conversation'),
 
     path('register/', UserCreateView.as_view(),name='register'),

@@ -1,46 +1,18 @@
-{%extends 'twitter/base.html' %}
-{%block tweets%}
-<!------------------------------SEND TWEET FORM---------------------------------->
-<form action="{% url 'tweet' %}" method="post">
-    {% csrf_token %}
-    <span>{{ form.text }}</span>
+{% extends 'twitter/base.html' %}
+
+{% block tweets %}
+<section class="col mid">
+<h3>Home</h3>
+<h5>{{user}}</h5>
   <br>
-    <span style="color:blue; padding:10px;">{{ form.pic1 }}</span>
-    <button type="submit" value="">
-    <span class="blue-button">Tweet</span>
-    </button>
-</form>
-<br> <br>
-<!------------------------------PAGINATED TWEETS------------------------------->
-{% for tweet in tweets %}
-<div><a href="{% url 'detail' tweet.author tweet.pk %}">{{ tweet.text}}</a> by <a
-  href="{% url 'userfeed' tweet.author %}">{{ tweet.author }}</a> at {{ tweet.when}}
-  <br>
-  {%include 'twitter/tweet_buttons.html' %}
-</div>
-<br>
-{% endfor %}
-<!---------------------------------PAGINATION----------------------------------->
-{% if tweets.has_previous %}
-<a href="?page={{ tweets.previous_page_number }}">previous</a>
-{%endif%}
-{% if tweets.has_next %}
-<a href="?page={{ tweets.next_page_number }}">next</a>
-{%endif%}
-<!------------------------------------------------------------------------------>
-<p><a href="{% url 'password_change' %}">Change password</a></p>
-<br>
-<a href="{% url 'logout' %}">Log out</a>
-<br>
-{%endblock%}
+{% include 'twitter/send_tweet.html' %}
+{% include 'twitter/tweets.html' %}
+</section>
+{% endblock %}
 
 {% block trends %}
-<div class="col right">
-  <h3>Trends for you</h3>
-  <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div>
-  <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div>
-  <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div>
-  <div class="divtrend"><a href=""><div class="content_container"><p>Trending in Ukraine</p><p>War</p><p># of tweets</p></div></a></div>
-</div>
-{%endblock%}
+<section class="col right"></section>
+{% include 'twitter/trends.html' %}
+</section>
+{% endblock %}
 

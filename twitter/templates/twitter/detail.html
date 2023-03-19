@@ -1,79 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-      button{
-        border: none;
-        padding: 0;
-        background: none;
-        cursor:pointer;
-        }
+{% extends 'twitter/base.html' %}
 
-      .make-active{
-        color:grey;
-        }
-
-      .make-active:hover{
-        color:blue;
-        }
-
-      .make-inactive{
-        color:blue;
-        }
-
-      .make-inactive:hover{
-        color:grey;
-        }
-
-      .blue-button{
-        background-color:rgb(29, 161, 242);
-        text-align: center;
-        font-weight: bold;
-        border-radius:50px;
-        color:white;
-        padding:5px 15px;
-        border:1px;
-        }
-
-  </style>
-</head>
-<body>
-{% block content %}
-<div>
+<h3>Replies</h3>
+{% block tweets %}
+<section class="col mid">
+  <div>
   <h1>{{ tweet.text }} by {{ tweet.author }} at {{ tweet.when }}</h1>
   {%include 'twitter/tweet_buttons.html' %}
 </div>
-
-<h3>Replies</h3>
-{%for tweet in replies %}
-<div><a href="{% url 'detail' tweet.author tweet.pk %}"> {{ tweet.text}} </a> by <a href="{% url 'userfeed' tweet.author %}"> {{ tweet.author }} </a> at {{tweet.when}}
+{% include 'twitter/send_reply.html' %}
   <br>
-  {%include 'twitter/tweet_buttons.html' %}
-</div>
-<br>
-{%endfor%}
-
-<!---------------------------------PAGINATION----------------------------------->
-{% if replies.has_previous %}
-<a href="?page={{ replies.previous_page_number }}">previous</a>
-{%endif%}
-{% if replies.has_next %}
-<a href="?page={{ replies.next_page_number }}">next</a>
-{%endif%}
-
-<!----------------------------------REPLY--------------------------------------->
-<form action="{% url 'reply' tweet.pk %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" value="">
-    <span class="blue-button">Reply</span>
-    </button>
-</form>
-<!------------------------------------------------------------------------------->
+<h3>Replies</h3>
+{% include 'twitter/tweets.html' %}
+</section>
 {% endblock %}
-</body>
-</html>
+
+{% block trends %}
+{% include 'twitter/trends.html' %}
+{% endblock %}
+
 

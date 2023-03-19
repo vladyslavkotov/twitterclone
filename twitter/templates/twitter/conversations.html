@@ -1,11 +1,15 @@
 {%extends 'twitter/base.html'%}
+
 {% block conversations %}
-<h2>Conversations</h2>
-<h5>{{conversations}}</h5>
-<p>{{conversations.count}}</p>
-{% for conversation in conversations %}
-<div>
-  <a href="{%url 'one_conversation' conversation.pk %}">{{conversation}}</a>
-</div>
-{%endfor%}
+<section class="col mid" style="width:30%;">
+  <h2>Conversations</h2>
+  <h5>{{conversations}}</h5>
+  <p>{{conversations.count}}</p>
+  {% for conversation in conversations %}
+  <div>
+    <a href="{%url 'one_conversation' conversation.pk %}">{{conversation}}</a>
+  </div>
+  {%endfor%}
+<p>&#128512;</p>
+</section>
 {% endblock %}

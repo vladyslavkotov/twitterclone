@@ -1,159 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-      button {
-        border: none;
-        padding: 0;
-        background: none;
-        cursor:pointer;
-      }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Title</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
 
-      .make-active{
-        color:grey;
-        }
-      .make-active:hover{
-        color:blue;
-        }
+* {
+  box-sizing: border-box;
+}
 
-      .make-inactive{
-        color:blue;
-        }
-      .make-inactive:hover{
-        color:grey;
-        }
+button {
+  border: none;
+  padding: 0;
+  background: none;
+  cursor:pointer;
+}
 
-      .blue-button{
-        background-color:rgb(29, 161, 242);
-        text-align: center;
-        font-weight: bold;
-        border-radius:50px;
-        color:white;
-        padding:5px 15px;
-        border:1px;
-        }
+.make-active-like, .make-active-retweet {
+  color:grey;
+}
 
-      span.form-button {
-        border: none;
-        padding: 0;
-        background: none;
-        cursor:pointer;
-      }
+.make-active-like:hover {
+  color:rgb(255, 0, 0);
+}
 
-      .navlink {
-        border-radius:50px;
-        width:auto;
-        padding:10px;
-      }
+.make-inactive-like {
+  color:rgb(255, 0, 0);
+}
 
-      .divnavlink {
-      padding:10px;
-      }
+.make-active-retweet:hover  {
+  color:rgb(0, 149, 23);
+}
 
-      a.navlink:hover {
-        background-color:grey;
-      }
+.make-inactive-retweet  {
+  color:rgb(0, 149, 23);
+}
 
-      .material-icons {
-      font-size: 20px;
-      vertical-align:text-top;
-      }
+.make-inactive-like:hover, .make-inactive-retweet:hover {
+  color:grey;
+}
 
-      a{text-decoration:none;}
+.views {
+  color: grey;
+}
 
-      .col{float:left;}
+.views:hover {
+  color: rgb(15, 171, 255)
+}
 
-      .left {
-      width:20%;
-      height:2000px;
-      }
+.blue-button {
+  background-color:rgb(15, 171, 255);
+  text-align: center;
+  font-weight: bold;
+  border-radius:50px;
+  color:white;
+  padding:5px 15px;
+  border:1px;
+}
 
-      .mid {
-      width:70%;
-      height:2000px;
-      background_color:grey;
-      }
+.blue-button:hover{
+  background-color:rgb(15, 144, 255);
+}
 
-      .left {
-      width:30%;
-      height:2000px;
-      }
+span.form-button {
+  border: none;
+  padding: 0;
+  background: none;
+  cursor:pointer;
+  }
 
+.navlink {
+  border-radius:50px;
+  width:auto;
+  padding:10px 25px 10px 10px;
+  font-size: 20px;
+}
 
+.navlink-current {
+  font-weight: bold;
+}
 
+.divnavlink {
+  padding:10px;
+}
 
-  </style>
+a.navlink:hover {
+  background-color:rgb(225, 225, 225);
+  transition: background-color 0.2s;
+}
+
+.navlink .material-icons {
+  vertical-align: -8px;
+  font-size:30px;
+}
+
+a {
+  text-decoration:none;
+}
+
+a:active {
+  color:inherit;
+}
+
+a:visited { 
+  color:inherit; 
+}
+
+.col{
+  float:left; border:1px solid;
+}
+
+.left {
+  width:19%; height:100%;
+}
+
+.mid {
+  width:50%;
+}
+
+.right {
+  width:30%;
+}
+
+.trend {
+  box-sizing: border-box;
+}
+
+.trend:hover {
+  background-color: grey;
+}
+
+.tweet {
+  border: 1px solid;
+  display: block;
+}
+
+.tweet:hover{
+  background-color: rgb(242, 242, 242);
+}
+
+.tweet-userlink-name:hover {
+  text-decoration: underline;
+  color: black;
+}
+
+.tweet-userlink-username {
+  color: rgb(119,133,143);
+}
+
+.tweet-userlink-time {
+  color: rgb(119,133,143);
+  text-decoration: underline;
+}
+
+a.big-tweet-button {
+  background-color:rgb(15, 171, 255);
+  color:white;
+  padding:10px 40px;
+  border-radius:50px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+a.big-tweet-button:hover {
+  background-color:rgb(15, 144, 255);
+  transition: background-color 0.2s;
+}
+
+a.tag {
+  color: rgb(15, 171, 255);
+}
+
+a.tag:hover {
+  text-decoration: underline;
+  color: rgb(15, 171, 255);
+}
+
+.verified {
+  color: rgb(15, 171, 255);
+  font-size: 15px;
+  vertical-align: -3px;
+}
+
+</style>
 </head>
 <body>
 <h5>{{user}}</h5>
-<section class="col left">
+<section id="navbar" class="col left">
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'feed' %}">
-      <span class="material-icons">home</span>
-      <span>Home</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'feed' %}">
+  <span class="material-icons">home</span>
+  <span>Home</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'feed' %}">
-      <span class="material-icons"> tag</span>
-      <span>Explore</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'feed' %}">
+  <span class="material-icons">tag</span>
+  <span>Explore</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'feed' %}">
-      <span class="material-icons">notifications_none</span>
-      <span>Notifications</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'feed' %}">
+  <span class="material-icons">notifications_none</span>
+  <span>Notifications</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'conversations' %}">
-      <span class="material-icons">mail_outline</span>
-      <span>Messages</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'conversations' %}">
+  <span class="material-icons">mail_outline</span>
+  <span>Messages</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'bookmarks' %}">
-      <span class="material-icons">bookmark_border</span>
-      <span>Bookmarks</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'bookmarks' %}">
+  <span class="material-icons">bookmark_border</span>
+  <span>Bookmarks</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'feed' %}">
-      <span class="material-icons">view_headline</span>
-      <span>Lists</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'feed' %}">
+  <span class="material-icons">view_headline</span>
+  <span>Lists</span>
+</a>
+</div>
 
-  <div class="divnavlink">
-    <a class="navlink" href="{% url 'feed' %}">
-      <span class="material-icons">account_circle</span>
-      <span>Profile</span>
-    </a>
-  </div>
+<div class="divnavlink">
+<a class="navlink" href="{% url 'userfeed' user.pk %}">
+  <span class="material-icons">account_circle</span>
+  <span>Profile</span>
+</a>
+</div>
+
+<div class="divnavlink">
+<a class="big-tweet-button" href="{% url 'feed' %}"> 
+  <span class="material-icons" style="font-size: 30px; opacity: 0;">account_circle</span>
+  <span>Tweet</span>
+  <span class="material-icons" style="font-size: 30px; opacity: 0;">account_circle</span>
+  </a>
+</div>
+
+<p><a href="{% url 'password_change' %}">Change password</a></p>
+<br>
+<a href="{% url 'logout' %}">Log out</a>
 
 </section>
 
-
-{%block tweets%}
-<section class="mid"></section>
+{% block tweets %}
 {%endblock%}
 
-{%block conversations%}
-<section class="mid"></section>
+{% block conversations %}
 {%endblock%}
 
-{%block trends%}
-<section class="right"></section>
+{% block trends %}
 {%endblock%}
+
+<script>
+
+const domain='http://localhost:8000';
+
+function getURL() {
+  let url=window.location.href;
+  const navlinks=document.getElementsByClassName('navlink');
+  for (let i = 0; i < navlinks.length; i++) {
+    const link=navlinks[i].getAttribute('href');
+    if (domain+link==url) {
+      var currentClass=navlinks[i].getAttribute('class');
+      navlinks[i].setAttribute('class', currentClass+=' navlink-current');
+    }
+  }
+}
+
+function hashtags() {
+  const hashtag = /#[a-z0-9_]+[a-z]+\b/gi;
+  const stock = /\$[a-z]{1,5}\b/gi;
+  const mention = /\@[a-z]{4,}\b/gi;
+  const cleanup = /\/[#$@]/g;
+  const tweets=document.getElementsByClassName('tweet-text');
+  if (tweets.length>0) {
+    for (let i = 0; i < tweets.length; i++) {
+      var t1=tweets[i].innerHTML;
+      t1=t1.replace(hashtag,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      t1=t1.replace(stock,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      t1=t1.replace(mention,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      t1=t1.replace(cleanup,"/");
+      tweets[i].innerHTML=t1;
+      }
+    }
+}
+
+hashtags();
+getURL();
+
+</script>
 
 </body>
 </html>

@@ -1,0 +1,24 @@
+{% for tweet in tweets %}
+
+<a class="tweet" href="{% url 'detail' tweet.author tweet.pk %}">
+<!-------------------- USER NAME AND USERNAME LINK TO USER ---------------------->
+  <form style="display:inline;" action="{% url 'userfeed' tweet.author.pk %}">
+    <button type="submit">
+      <span class="tweet-userlink-name">{{tweet.author.name}}</span>
+      <span class="tweet-userlink-username">@{{tweet.author.username}}</span>
+    </button>
+  {% if tweet.author.is_verified %}
+    <span class="material-icons verified"> verified </span>
+  </form>
+  {% endif %}
+<!----------------------------- TIME LINK TO TWEET ------------------------------>
+  <form style="display:inline;" action="{% url 'detail' tweet.author tweet.pk %}">
+    <button class="tweet-userlink-time" type="submit">{{ tweet.when }}</button>
+  </form>
+
+    <div class="tweet-text">{{ tweet.text }}</div>
+
+{% include 'twitter/tweet_buttons.html' %}
+</a>
+{% endfor %}
+{% include 'twitter/tweet_pagination.html' %}
