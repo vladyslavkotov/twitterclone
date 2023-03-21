@@ -1,17 +1,30 @@
 {% extends 'twitter/base.html' %}
+
 {% block tweets %}
 <section class="col mid">
-<h2>user {{ requested_user }}</h2>
-<span>Followers {{requested_user.followers.all }}</span>
-<span>Following {{requested_user.following.all }}</span>
-<br>
-{% include 'twitter/tweets.html' %}
-</section>
-{% endblock %}
-
-{% block trends %}
-<section class="col right"></section>
-{% include 'twitter/trends.html' %}
+<span style="font-size: 16px;"> user {{ requested_user }}</span>
+  {%if requested_user.is_verified %}
+  <span class="material-icons verified-large"> verified </span>
+  {%endif%}
+  {%if requested_user.is_private %}
+  <span class="material-icons lock"> lock </span>
+  {%endif%}
+<div>is private{{requested_user.is_private}}</div>
+<span>Followers {{requested_user.followers.count }}</span>
+<span>Following {{requested_user.following.count }}</span>
+{%if error_message == "blocked" %}
+  <div>This user has limited your access to their account and tweets</div>
+{% elif error_message == "private" %}
+  <div>This account is private. You need to subscribe and wait for this user to approve your subscribe request</div>
+  {% include 'twitter/request_follow_button.html' %}
+{% elif error_message == "does_not_exist" %}
+  <div>This user does not exist</div>
+{%else%}
+  {% include 'twitter/follow_button.html' %}
+  <br>
+  {% include 'twitter/tweets.html' %}
+  <br>
+{%endif%}
 </section>
 {% endblock %}
 

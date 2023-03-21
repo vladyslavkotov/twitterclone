@@ -80,15 +80,15 @@ class UserAdmin(BaseUserAdmin):
   form = UserChangeForm
   add_form = UserCreationForm
 
-  list_display = ["pk", "username", "name", "email", "is_verified", "date_joined", "last_login"]
+  list_display = ["pk", "username", "name", "email", "is_verified", "is_private", "date_joined", "last_login"]
   readonly_fields = ["date_joined", "last_login"]
 
   fieldsets = \
-    ((None, {"fields": ("username", "password", "is_verified")}),
+    ((None, {"fields": ("username", "password", "is_verified","is_private")}),
 
     (_("Personal info"), {"fields": ("name", "email", "phone", "link", "userpic", "background", "date_joined", "last_login", "bio",)}),
 
-    (_("Follow"), {"fields": ("followers", "following", "conversations", "tweets","likes","bookmarks"), },),)
+    (_("Follow"), {"fields": ("followers", "following", "conversations", "tweets","likes","bookmarks","notifications"), },),)
 
   add_fieldsets = ((None, {"classes": ("wide",), "fields": ("username", "email", "password1", "password2"), },),)
 
@@ -109,8 +109,12 @@ class MessageAdmin(admin.ModelAdmin):
   list_display = ["pk", "text", "when"]
   fields = ["sender","receiver","text"]
 
+class NotificationAdmin(admin.ModelAdmin):
+  list_display = ["pk", "sender","receiver", "type"]
+  fields = ["sender","receiver","type"]
 
 admin.site.register(Tweet, TweetAdmin)
+admin.site.register(Notification, NotificationAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.register(Message, MessageAdmin)

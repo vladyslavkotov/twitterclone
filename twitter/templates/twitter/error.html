@@ -1,0 +1,9 @@
+{%if error_message == "blocked" %}
+  <div>This user has limited your access to their account and tweets</div>
+{% elif error_message == "private" %}
+  <div>This account is private. You need to subscribe and wait for this user to approve your subscribe request</div>
+{% elif error_message == "does_not_exist" %}
+  <div>This user does not exist</div>
+{%endif%}
+
+

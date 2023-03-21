@@ -4,7 +4,7 @@
   {% csrf_token %}
   <button class="make-inactive-like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
     <span class="material-icons">favorite</span>
-    <span>{{tweet.likes.count}}</span>
+    <span class="counter">{{tweet.likes.count}}</span>
   </button>
 </form>
 {%else%}
@@ -12,7 +12,7 @@
   {% csrf_token %}
   <button class="make-active-like" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
     <span class="material-icons make-active-like">favorite</span>
-    <span>{{tweet.likes.count}}</span>
+    <span class="counter">{{tweet.likes.count}}</span>
   </button>
 </form>
 {%endif%}
@@ -22,7 +22,7 @@
   {% csrf_token %}
   <button class="make-inactive-retweet" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
     <span class="material-icons">cached</span>
-    <span>{{tweet.retweets.count}}</span>
+    <span class="counter">{{tweet.retweets.count}}</span>
   </button>
 </form>
 {%else%}
@@ -30,12 +30,12 @@
   {% csrf_token %}
   <button class="make-active-retweet" type="submit" name="tweet_pk" value="{{ tweet.pk }}">
     <span class="material-icons">cached</span>
-    <span>{{tweet.retweets.count}}</span>
+    <span class="counter">{{tweet.retweets.count}}</span>
   </button>
 </form>
 {%endif%}
 <!-----------------------------VIEWS------------------------------------>
 <button class="views">
   <span class="material-icons make-active">signal_cellular_alt</span>
-  <span>{{tweet.views}}</span>
+  <span class="counter">{{tweet.views}}</span>
 </button>

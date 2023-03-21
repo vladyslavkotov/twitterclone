@@ -1,17 +1,12 @@
 {% extends 'twitter/base.html' %}
-
 {% block tweets %}
 <section class="col mid">
-<h3>Home</h3>
-<h5>{{user}}</h5>
-  <br>
-{% include 'twitter/send_tweet.html' %}
-{% include 'twitter/tweets.html' %}
+<h2>{{error_message}}</h2>
 </section>
 {% endblock %}
 
 {% block trends %}
-<section class="col right">
+<section class="col right"></section>
 {% include 'twitter/trends.html' %}
 </section>
 {% endblock %}

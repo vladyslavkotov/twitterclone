@@ -9,6 +9,7 @@
 
 * {
   box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 button {
@@ -31,11 +32,11 @@ button {
 }
 
 .make-active-retweet:hover  {
-  color:rgb(0, 149, 23);
+  color:rgb(0, 149, 0);
 }
 
 .make-inactive-retweet  {
-  color:rgb(0, 149, 23);
+  color:rgb(0, 149, 0);
 }
 
 .make-inactive-like:hover, .make-inactive-retweet:hover {
@@ -185,12 +186,75 @@ a.tag:hover {
   vertical-align: -3px;
 }
 
+.spanfollow {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  width:100px;
+  border-radius: 50px;
+  font-weight: bold;
+  display: block;
+}
+
+.follow {
+  background-color: black;
+  color:white;
+}
+
+.follow:hover {
+  background-color: rgb(77, 77, 77);
+  color:white;
+}
+
+.following {
+  background-color: rgb(0, 0, 0);
+  color: white;
+}
+
+.unfollow {
+  display: none;
+}
+
+button.unfollow-button:hover .following {
+  display: none;
+}
+
+button.unfollow-button:hover .unfollow {
+  display: block;
+  background-color: rgba(255, 0, 0, 0.212);
+  color: red;
+  border: 1px solid rgb(255, 0, 0);
+}
+
+.counter{
+  vertical-align: 7px;
+}
+
+textarea.new-tweet {
+  height:40px;
+  width: 200px;
+  resize: none;
+}
+
+.lock {
+  font-size: 16px;
+  vertical-align: -2px;
+  color: black;
+  margin: 0px;  
+}
+
+.verified-large {
+  color: rgb(15, 171, 255);
+  font-size: 16px;
+  vertical-align: -2px;
+  margin: 0px;
+}
+
 </style>
 </head>
 <body>
-<h5>{{user}}</h5>
 <section id="navbar" class="col left">
 
+{% if user.is_authenticated %}
 <div class="divnavlink">
 <a class="navlink" href="{% url 'feed' %}">
   <span class="material-icons">home</span>
@@ -206,7 +270,7 @@ a.tag:hover {
 </div>
 
 <div class="divnavlink">
-<a class="navlink" href="{% url 'feed' %}">
+<a class="navlink" href="{% url 'notifications' %}">
   <span class="material-icons">notifications_none</span>
   <span>Notifications</span>
 </a>
@@ -248,13 +312,25 @@ a.tag:hover {
   </a>
 </div>
 
+
 <p><a href="{% url 'password_change' %}">Change password</a></p>
 <br>
+<div>{{user}}</div>
 <a href="{% url 'logout' %}">Log out</a>
-
+{% else %}
+<div class="divnavlink">
+<a class="navlink" href="">
+  <span class="material-icons">tag</span>
+  <span>Explore</span>
+</a>
+</div>
+{% endif %}
 </section>
 
 {% block tweets %}
+{%endblock%}
+
+{% block notifications %}
 {%endblock%}
 
 {% block conversations %}
@@ -279,25 +355,27 @@ function getURL() {
   }
 }
 
-function hashtags() {
-  const hashtag = /#[a-z0-9_]+[a-z]+\b/gi;
-  const stock = /\$[a-z]{1,5}\b/gi;
-  const mention = /\@[a-z]{4,}\b/gi;
+function clickable() {
+  // const hashtag = /#[a-z0-9_]+[a-z]+\b/gi;
+  // const stock = /\$[a-z]{1,5}\b/gi;
+  // const mention = /\@[a-z]{4,}\b/gi;
+  const regex=/(#[a-z0-9_]+[a-z]+\b)|(\$[a-z]{1,5}\b)|(\@[a-z]{4,}\b)/gi
   const cleanup = /\/[#$@]/g;
   const tweets=document.getElementsByClassName('tweet-text');
   if (tweets.length>0) {
     for (let i = 0; i < tweets.length; i++) {
       var t1=tweets[i].innerHTML;
-      t1=t1.replace(hashtag,`<a class="tag" href="${domain}/search/$&">$&</a>`);
-      t1=t1.replace(stock,`<a class="tag" href="${domain}/search/$&">$&</a>`);
-      t1=t1.replace(mention,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      t1=t1.replace(regex,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      // t1=t1.replace(hashtag,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      // t1=t1.replace(stock,`<a class="tag" href="${domain}/search/$&">$&</a>`);
+      // t1=t1.replace(mention,`<a class="tag" href="${domain}/search/$&">$&</a>`);
       t1=t1.replace(cleanup,"/");
       tweets[i].innerHTML=t1;
       }
     }
 }
 
-hashtags();
+clickable();
 getURL();
 
 </script>

@@ -1,0 +1,33 @@
+{%extends 'twitter/base.html' %}
+
+{%block notifications%}
+<section class="col mid">
+<h3>Notifications</h3>
+<h5>{{user}}</h5>
+{% for notification in notifications %}
+<span>{{notification.sender}}</span>
+<span>{{notification.receiver}}</span>
+<span>{{notification.type}}</span>
+<form action="{% url 'approve_follow_request' notification.sender.pk %}" method="post">
+   {% csrf_token %}
+   <button class="follow-button" type="submit" name="notification_sender_pk" value="{{ notification.sender.pk }}">
+     <span>Approve</span>
+   </button>
+ </form> 
+ <form action="{% url 'decline_follow_request' notification.sender.pk %}" method="post">
+   {% csrf_token %}
+   <button class="follow-button" type="submit" name="notification_sender_pk" value="{{ notification.sender.pk }}">
+     <span>Decline</span>
+   </button>
+ </form> 
+<span>--------------------------</span>
+{% endfor %}
+</section>
+{%endblock%}
+
+{% block trends %}
+<section class="col right"></section>
+{% include 'twitter/trends.html' %}
+</section>
+{% endblock %}
+

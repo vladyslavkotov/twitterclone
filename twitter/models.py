@@ -69,11 +69,10 @@ class User(AbstractUser):
 
   likes = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_likes')
   bookmarks = models.ManyToManyField('Tweet', symmetrical=False, related_name='user_bookmarks')
+  notifications = models.ManyToManyField('Notification', symmetrical=False, related_name='user_notifications')
 
-  #lists = models.ManyToManyField('TweetList', symmetrical=False, related_name='user_lists')
-  #also you can pin 1 of your tweets at the top of your profile
-  #send tweets as dm
-
+  is_private = models.BooleanField(default=False)
+  lists = models.ManyToManyField('TweetList', symmetrical=False, related_name='user_lists')
 
   def __str__(self):
     return f'{self.username}'
@@ -123,6 +122,7 @@ class Tweet(models.Model):
   replies = models.ManyToManyField('self', symmetrical=False, related_name='tweet_replies')
 
   views = models.IntegerField(default=0)
+  is_pinned = models.BooleanField(default=False)
 
   def __str__(self):
     return f"{self.pk} {self.text} by {self.author} at {self.when}"
@@ -132,6 +132,7 @@ class Tweet(models.Model):
     add() and create() doesnt require save()'''
     super().save(*args, **kwargs)
     self.author.tweets.add(self)
+    #not sure if we need this, it's taken care of by reply()
     if self.replied_to:
       self.replied_to.replies.add(self)
 
@@ -146,17 +147,19 @@ class TweetList(models.Model):
   users_in_list=List.objects.get(pk=).users.all()
   return Tweet.objects.filter(replied_to__isnull=True).filter(author__in=users_in_list.all())
   '''
-  name = models.CharField(max_length=50)
-  tweets = models.ManyToManyField(Tweet, symmetrical=False, related_name='list_tweets')
+  name = models.CharField(max_length=25)
+  description = models.TextField(max_length=100, blank=True)
+  # tweets = models.ManyToManyField(User, symmetrical=False, related_name='list_users')
   is_pinned = models.BooleanField(default=False)
 
 class Message(models.Model):
   # cant be null. probably better to set to 'deleted account' on delete
-  sender = models.ForeignKey(User, on_delete=models.CASCADE,related_name='message_sender')
-  receiver = models.ForeignKey(User, on_delete=models.CASCADE,related_name='message_receiver')
+  sender = models.ForeignKey(User, on_delete=models.SET, related_name='message_sender')
+  receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_receiver')
   #forwarded from deleted message like in telegram.
   #apparently you cannot forward messages in twitter at al, so
   forwarded_from=models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='forwarded')
+  attached_tweet=models.ForeignKey(Tweet, on_delete=models.SET_NULL, null=True, related_name='msg_attached_tweet')
   text = models.TextField()
   when = models.DateTimeField(auto_now_add=True)
 
@@ -165,16 +168,13 @@ class Message(models.Model):
   #message fk to convo? not sure if we need, we wont really manage individual messages
   #message.conversation - not really see where it might be useful
 
-  # not sent would happen only if internet connection falls thru. really beyond the scope
-  #is_read later. this is not the last migration and not last iteration
-
   def save(self, *args, **kwargs):
-    #self=Message instance. self.user-no such attr. self.sender or self.receiver
     super().save(*args, **kwargs)
     try:
       existing_convo = self.sender.conversations.all().get(participants__in=[self.receiver])
       existing_convo.messages.add(self)
     except ObjectDoesNotExist:
+      #requires at least 1 convo already there
       next_available_pk = (Conversation.objects.last().pk + 1)
       new_convo=Conversation.objects.create(pk=next_available_pk)
       new_convo.participants.add(self.sender,self.receiver)
@@ -183,7 +183,6 @@ class Message(models.Model):
       new_convo.messages.add(self)
 
 class Conversation(models.Model):
-  # cant be null. probably better to set to 'deleted account' on delete
   #possibly can be notifications on for user and reflect on convo with him
   is_pinned = models.BooleanField(default=False)
   messages = models.ManyToManyField(Message, symmetrical=False, related_name='convo_messages')
@@ -200,4 +199,27 @@ class Conversation(models.Model):
   def get_participants(self):
     '''displays participants in admin as 1 string'''
     return " ".join([str(x) for x in self.participants.all().only("username")])
+
+class Reaction(models.Model):
+  emoji = models.CharField(max_length=6)
+  message = models.ForeignKey(User, on_delete=models.SET, related_name='reaction_message')
+
+class Notification(models.Model):
+  NOTIFICATION_CHOICES=[('like','like'),('reply', 'reply'),('retweet', 'retweet'),('follow', 'follow'),('follow_request', 'follow_request')]
+
+  sender = models.ForeignKey(User, on_delete=models.SET, related_name='notification_sender')
+  receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification_receiver')
+  type = models.CharField(max_length=20, choices=NOTIFICATION_CHOICES)
+
+  def __str__(self):
+    return f"{self.type} from {self.sender} to {self.receiver}"
+
+  def save(self, *args, **kwargs):
+    super().save(*args, **kwargs)
+    self.sender.notifications.add(self)
+    self.receiver.notifications.add(self)
+
+
+
+
 

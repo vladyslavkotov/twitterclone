@@ -1,9 +1,20 @@
 <form action="{% url 'tweet' %}" method="post">
   {% csrf_token %}
-  <span>{{ form.text }}</span>
+  <textarea class="new-tweet" name="text" cols="40" rows="50" maxlength="280" id="id_text"> </textarea>
   <br>
-  <span style="color:blue; padding:10px;">{{ form.pic1 }}</span>
+
+  <label style="cursor: pointer;" for="id_pic1">
+    <span class="material-icons">image</span>
+  </label>
+  <input style="display: none;" type="file" accept="image/*" id="id_pic1">
+
+  <label style="cursor: pointer;" for="id_pic2">
+    <span class="material-icons">gif_box</span>
+  </label>
+  <input style="display: none;" type="file" accept=".gif" id="id_pic2">
+
   <button type="submit" value="">
     <span class="blue-button">Tweet</span>
   </button>
 </form>
+<br>

@@ -1,0 +1,16 @@
+<!-------------------- REQUEST FOLLOW/PENDING BUTTON------------------------>
+{%if notification %}
+<form action="{% url 'cancel_follow_request' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button class="unfollow-button" type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="spanfollow follow_request">Pending</span>
+  </button>
+</form>
+{%else%}
+<form action="{% url 'follow_request' requested_user.pk %}" method="post">
+  {% csrf_token %}
+  <button class="follow-button" type="submit" name="requested_user_pk" value="{{ requested_user.pk }}">
+    <span class="spanfollow follow">Follow</span>
+  </button>
+</form>
+{%endif%}
