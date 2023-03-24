@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, re
 from django.contrib import messages as django_messages
 from django.core.paginator import Paginator
 import re
+from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
@@ -35,6 +36,10 @@ def base(request):
   # trends=Tweet.objects.filter(when__gt=timezone.now()-timezone.timedelta(days=1))
   trends=Tweet.objects.all().order_by('-when')[:5]
   return render(request,'twitter/base.html',{'trends':trends})
+
+def onetweet(request, pk):
+  requested_tweet = Tweet.objects.get(pk=pk)
+  return JsonResponse({'requested_tweet':requested_tweet})
 
 def userfeed(request,pk):
   try:
